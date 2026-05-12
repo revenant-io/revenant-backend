@@ -60,7 +60,18 @@ func registerRoutes(router *gin.Engine, log *logger.Logger, db *sql.DB, cfg *con
 		protected := v1.Group("")
 		protected.Use(middleware.AuthMiddleware(cfg))
 		{
+			protected.GET("/users/search", handlers.SearchUser(db, log))
 			protected.GET("/users/:id", handlers.GetUser(db, log))
+
+			expenses := protected.Group("/expenses")
+			{
+				expenses.POST("", handlers.CreateExpense(db, log))
+				expenses.GET("", handlers.ListExpenses(db, log))
+				expenses.GET("/:id", handlers.GetExpense(db, log))
+				expenses.PUT("/:id", handlers.UpdateExpense(db, log))
+				expenses.DELETE("/:id", handlers.DeleteExpense(db, log))
+				expenses.POST("/:id/participants", handlers.AddParticipant(db, log))
+			}
 		}
 	}
 }
